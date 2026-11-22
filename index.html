@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아히 · Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  /* 깔끔한 소개 페이지. 크림빛 흰 종이, 연보라·연핑크는 포인트로만 */
+  :root{
+    color-scheme: light;
+    --desk:#f3edf2;
+    --paper:#fffdfd;
+    --ink:#3b3340;
+    --muted:#9b919f;
+    --line:#efe6ec;
+    --acc:#a98ed6;
+    --acc-soft:#f1ebfa;
+    --pink:#e7a9c1;
+    --f-title:"Gowun Batang",serif;
+    --f-body:"Gowun Dodum",system-ui,-apple-system,sans-serif;
+    --f-en:"Cormorant Garamond",Georgia,serif;
+    --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--desk); color:var(--ink); font-family:var(--f-body); display:flex; justify-content:center; padding:16px; -webkit-font-smoothing:antialiased}
+  .doc{width:100%; max-width:460px; height:100%; background:var(--paper); border-radius:22px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 0 0 1px #ecdfe8, 0 28px 56px -36px #7c517066}
+
+  /* 상단 */
+  .head{padding:20px 24px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line)}
+  .head svg{flex:none}
+  .head strong{font-family:var(--f-title); font-weight:700; font-size:18px; letter-spacing:.04em}
+  .head em{font-family:var(--f-en); font-style:italic; font-size:16px; color:var(--muted)}
+  .handle{font-family:var(--f-body); font-size:14px; letter-spacing:.03em; color:var(--ink); text-decoration:none}
+  .handle:hover{color:var(--acc)}
+  .head .sub{margin-left:auto; font-family:var(--f-en); font-style:italic; font-size:19px; letter-spacing:.04em; color:var(--acc)}
+
+  /* 넘기는 영역 */
+  .track{flex:1; display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scrollbar-width:none}
+  .track::-webkit-scrollbar{display:none}
+  .page{flex:0 0 100%; scroll-snap-align:start; overflow-y:auto; padding:20px 24px 30px; display:flex; flex-direction:column; gap:22px}
+
+  .page > *{flex-shrink:0}
+  .sec-head{display:flex; align-items:baseline; gap:10px}
+  .sec-no{font-family:var(--f-en); font-size:15px; color:var(--acc)}
+  .sec-title{font-family:var(--f-title); font-weight:700; font-size:21px; letter-spacing:.02em}
+  .sec-en{margin-left:auto; font-family:var(--f-en); font-style:italic; font-size:16px; color:var(--muted)}
+
+  /* 사진 카드 */
+  .card{position:relative; aspect-ratio:4/5; border-radius:18px; overflow:hidden; background:#2b2530; flex:0 0 auto}
+  .card > img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 18%}
+  .card::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,#00000000 50%, #1e1a22aa 82%, #1e1a22e6 100%)}
+  .card-info{position:absolute; z-index:2; left:20px; right:20px; bottom:18px; color:#fff; display:flex; flex-direction:column; gap:6px}
+  .card-name{display:flex; align-items:baseline; gap:10px}
+  .card-name strong{font-family:var(--f-title); font-weight:700; font-size:32px; letter-spacing:.06em; line-height:1}
+  .card-name em{font-family:var(--f-en); font-style:italic; font-size:18px; color:#ffffffcc}
+  .card-line{font-size:13.5px; color:#ffffffe0; line-height:1.6}
+  .chip{position:absolute; z-index:2; top:14px; left:14px; background:#ffffffe6; color:var(--ink); font-size:12px; padding:4px 11px; border-radius:999px; letter-spacing:.04em}
+  .chip i{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--acc); margin-right:6px; vertical-align:1px}
+
+  .wide{display:block; width:100%; aspect-ratio:1216/832; object-fit:cover; border-radius:14px}
+
+  /* 정보 */
+  .spec{display:flex; flex-direction:column}
+  .spec-row{display:grid; grid-template-columns:84px 1fr; gap:12px; padding:13px 0; border-bottom:1px solid var(--line)}
+  .spec-row:first-child{border-top:1px solid var(--line)}
+  .spec-row dt{font-size:13px; color:var(--muted); padding-top:1px}
+  .spec-row dt span{display:block; font-family:var(--f-en); font-style:italic; font-size:13px; color:#c3b8c7}
+  .spec-row dd{font-size:14px; line-height:1.75; word-break:keep-all}
+  .spec-row dd b{font-weight:400; color:var(--acc)}
+
+  .tags{display:flex; flex-wrap:wrap; gap:6px}
+  .tag{background:var(--acc-soft); color:#6e5a96; padding:5px 12px; border-radius:999px; font-size:12.5px}
+
+  .socials{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .soc{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:14px; padding:12px 14px; text-decoration:none; color:var(--ink); transition:background .2s}
+  .soc svg{flex:none; color:var(--ink)}
+  .soc span{font-size:13.5px; line-height:1.3; min-width:0; overflow-wrap:anywhere}
+  .soc small{display:block; font-family:var(--f-en); font-style:italic; font-size:13px; color:var(--acc)}
+  .soc:hover, .soc:active{background:var(--acc-soft)}
+  .soc:focus-visible{outline:2px solid var(--acc); outline-offset:3px}
+
+  /* 오너캐 */
+  .file{display:grid; grid-template-columns:64px 1fr; gap:14px; align-items:center}
+  .file img{width:64px; height:76px; object-fit:cover; object-position:50% 20%; border-radius:12px}
+  .file strong{font-family:var(--f-title); font-weight:700; font-size:19px; display:block}
+  .file small{font-family:var(--f-en); font-style:italic; font-size:14px; color:var(--acc)}
+  .rule{height:1px; background:var(--line); margin:6px 0}
+  .prompt{border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .prompt-head{display:flex; justify-content:space-between; align-items:center; padding:7px 10px 7px 13px; background:#fbf7fb; font-family:var(--f-en); font-size:14px; color:var(--muted)}
+  .copy{border:none; background:var(--ink); color:#fff; font-family:var(--f-body); font-size:12px; padding:4px 13px; border-radius:999px; cursor:pointer}
+  .copy.done{background:var(--acc)}
+  .copy:focus-visible{outline:2px solid var(--acc); outline-offset:2px}
+  .prompt pre{margin:0; padding:12px 13px; max-height:240px; overflow:auto; white-space:pre-wrap; word-break:break-word; font-family:var(--f-mono); font-weight:300; font-size:11px; line-height:1.7}
+
+  /* 링크 버튼 */
+  .lnk{display:flex; align-items:center; gap:12px; border:1px solid var(--line); border-radius:14px; padding:13px 16px; text-decoration:none; color:var(--ink); transition:background .2s}
+  .lnk:hover, .lnk:active{background:var(--acc-soft)}
+  .lnk small{display:block; font-size:12px; color:var(--muted)}
+  .lnk b{display:block; font-weight:400; font-size:15px; margin-top:2px; overflow-wrap:anywhere}
+  .lnk::after{content:"↗"; margin-left:auto; color:var(--acc)}
+  .lnk:focus-visible{outline:2px solid var(--acc); outline-offset:3px}
+
+  .chip2{left:auto; right:14px; background:#1e1a22cc; color:#fff}
+
+    background-image:linear-gradient(90deg, transparent calc(50% - 1px), #00000010 50%, #ffffff calc(50% + 1px), transparent calc(50% + 2px)), linear-gradient(transparent calc(50% - 1px), #00000010 50%, #ffffff calc(50% + 1px), transparent calc(50% + 2px)), radial-gradient(#00000006 1px, transparent 1.2px);
+    background-size:100% 100%, 100% 100%, 5px 5px;
+    box-shadow:0 16px 28px -20px #3a1f2a88, 0 0 0 1px #efe9ec; transform:rotate(2.5deg)}
+    background:radial-gradient(120% 90% at 85% 0%, #2f6a63 0%, transparent 55%), linear-gradient(135deg,#13221f,#0c1514 60%,#17302c);
+    box-shadow:0 18px 30px -18px #0d2a2699, inset 0 0 0 1px #ffffff14}
+  .page.tyobi{--acc:#5f76cf; --acc-soft:#ecf0fc}
+  .page.mayo{--acc:#d9709a; --acc-soft:#fcebf2}
+  .page.gong{--acc:#4aa79c; --acc-soft:#e6f5f2}
+
+  /* 자관 */
+  .dk-quad{position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr}
+  .dk-quad img{width:100%; height:100%; object-fit:cover; object-position:50% 10%; min-height:0}
+  .dk-members{display:flex; gap:12px; font-size:13px; color:#ffffffe0}
+  .dk-members i{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:1px}
+  .clip{border:1px solid var(--line); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:8px}
+  .clip-top{display:flex; justify-content:space-between; font-family:var(--f-mono); font-weight:300; font-size:9.5px; letter-spacing:.18em; color:var(--muted)}
+  .clip h3{font-family:var(--f-title); font-weight:700; font-size:16.5px; line-height:1.5; word-break:keep-all}
+  .clip p{font-size:13px; line-height:1.7; color:#6f6573; word-break:keep-all}
+  .clip a{align-self:flex-start; background:var(--ink); color:#fff; text-decoration:none; font-size:12.5px; padding:6px 14px; border-radius:999px}
+  .gallery{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .gallery img{width:100%; aspect-ratio:3/4; object-fit:cover; object-position:50% 10%; border-radius:12px; display:block}
+  .cap{font-size:12.5px; color:var(--muted); margin-top:-12px}
+
+  /* 트친 */
+  .pals{display:grid; grid-template-columns:1fr 1fr; gap:20px 14px}
+  .pal{display:flex; flex-direction:column; gap:3px; text-decoration:none; color:var(--ink); min-width:0}
+  .pal-img{position:relative; aspect-ratio:1; border-radius:16px; overflow:hidden; margin-bottom:6px; background:var(--acc-soft); transition:opacity .2s}
+  .pal-img img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .pal-img.ph{display:grid; place-items:center; background:linear-gradient(160deg,#f6eff9,#efe3f2)}
+  .pal-img.ph span{font-family:var(--f-title); font-weight:700; font-size:34px; color:var(--acc)}
+  .pal:hover .pal-img, .pal:active .pal-img{opacity:.85}
+  .pal:focus-visible{outline:2px solid var(--acc); outline-offset:3px; border-radius:16px}
+  .pal-name{font-family:var(--f-title); font-weight:700; font-size:15px; overflow-wrap:anywhere}
+  .pal-id{font-size:11.5px; color:var(--muted); overflow-wrap:anywhere}
+
+
+  /* 드림 · 월하 × 이령 (동양풍) */
+  .page.dream{--acc:#a8463e; --acc-soft:#f6ebe3; --night:#1f2a3d; --gold:#b8955a;
+    background-color:#fbf7ef;
+    background-image:radial-gradient(circle at 18% 12%, #f3e7d455 0 22%, transparent 23%), radial-gradient(circle at 88% 64%, #efe3d055 0 18%, transparent 19%);
+    font-family:var(--f-title)}
+  .dream .sec-head{border-bottom:1px solid #e8dccb; padding-bottom:10px}
+  .seal{display:inline-grid; place-items:center; width:30px; height:30px; background:var(--acc); color:#fbf1e6; font-family:var(--f-title); font-weight:700; font-size:17px; border-radius:4px; transform:rotate(-4deg); box-shadow:inset 0 0 0 2px #fbf1e655; margin-left:auto}
+  .dr-pair{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px}
+  .scroll{background:#fffdf8; padding:8px 8px 0; box-shadow:0 10px 22px -16px #3a2a1a88, 0 0 0 1px #eadfcd; position:relative}
+  .scroll::before, .scroll::after{content:""; position:absolute; left:-5px; right:-5px; height:5px; background:linear-gradient(#5a4632,#3b2d20); border-radius:3px}
+  .scroll::before{top:-3px} .scroll::after{bottom:-3px}
+  .scroll img{display:block; width:100%; aspect-ratio:3/4; object-fit:cover; object-position:50% 10%}
+  .scroll p{text-align:center; font-family:var(--f-title); font-weight:700; font-size:17px; letter-spacing:.18em; padding:10px 0 12px}
+  .scroll p small{display:block; font-weight:400; font-size:10.5px; letter-spacing:.2em; color:#a89a87; margin-top:2px}
+  .dr-pair .mid{color:var(--gold); font-size:15px}
+  .dr-banner{position:relative; border-radius:14px; overflow:hidden; aspect-ratio:1216/832; flex:0 0 auto}
+  .dr-banner img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .dr-banner::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,#141b2a55,#141b2a99)}
+  .dr-banner div{position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#f7efe2; text-align:center; padding:0 20px}
+  .dr-banner p{font-family:var(--f-title); font-size:15px; letter-spacing:.14em; text-shadow:0 1px 8px #0009}
+  .dr-banner strong{font-family:var(--f-title); font-weight:700; font-size:26px; letter-spacing:.34em; text-shadow:0 2px 10px #000a}
+  .dr-banner i{width:34px; height:1px; background:#e6cf9f}
+  .dr-banner p.en{font-family:var(--f-en); font-size:12px; letter-spacing:.3em; color:#e6cf9fcc}
+  .pact{background:#fffdf8; border:1px solid #e3d5bf; outline:1px solid #e3d5bf; outline-offset:-6px; padding:18px 18px 16px; display:flex; flex-direction:column; gap:10px}
+  .pact-head{display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid #e8dccb; padding-bottom:8px}
+  .pact-head span:first-child{font-weight:700; font-size:18px; letter-spacing:.4em; color:var(--acc)}
+  .pact-head span:last-child{font-size:12px; letter-spacing:.3em; color:#a89a87}
+  .pact dl{display:grid; grid-template-columns:48px 1fr; gap:6px 10px; font-size:14px}
+  .pact dt{color:#a89a87; font-size:13px}
+  .pact p{font-size:13.5px; line-height:1.8; color:#5b5048; word-break:keep-all; border-top:1px dashed #e3d5bf; padding-top:10px}
+  .talk{display:flex; flex-direction:column; gap:12px}
+  .say{display:flex; align-items:flex-start; gap:9px; max-width:88%}
+  .say.r{align-self:flex-end; flex-direction:row-reverse}
+  .say img{width:36px; height:36px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 1.5px #e6d7c1}
+  .msg{display:flex; flex-direction:column; gap:4px; min-width:0}
+  .say.r .msg{align-items:flex-end}
+  .msg b{font-family:var(--f-body); font-weight:400; font-size:11.5px; letter-spacing:.06em; color:#46557a; padding:0 4px}
+  .say.r .msg b{color:var(--acc)}
+  .bub{font-family:var(--f-title); font-size:14px; line-height:1.65; word-break:keep-all; background:#fffdf8; border:1px solid #e8dccb; border-radius:4px 14px 14px 14px; padding:9px 13px 10px}
+  .say.r .bub{background:#f6ebe3; border-color:#ead3c6; border-radius:14px 4px 14px 14px}
+  .dr-sep{text-align:center; color:var(--gold); letter-spacing:.8em; font-size:11px}
+  .dr-card{background:#fffdf8; padding:8px; box-shadow:0 10px 22px -16px #3a2a1a88, 0 0 0 1px #eadfcd}
+  .dr-card img{display:block; width:100%; aspect-ratio:1216/832; object-fit:cover}
+
+  /* 하단 */
+  .foot{border-top:1px solid var(--line); padding:10px 20px 12px; display:flex; align-items:center; justify-content:space-between}
+  .dots{display:flex; gap:6px}
+  .dots i{width:6px; height:6px; border-radius:50%; background:#e7dce5; transition:background .25s, width .25s}
+  .dots i.on{background:var(--pink); width:18px; border-radius:3px}
+  .pager{display:flex; align-items:center; gap:8px}
+  .pager button{border:none; background:none; font-size:15px; color:var(--ink); cursor:pointer; width:30px; height:30px; border-radius:50%}
+  .pager button:disabled{color:#ddd3db; cursor:default}
+  .pager button:focus-visible{outline:2px solid var(--acc)}
+  .count{font-family:var(--f-en); font-size:15px; font-variant-numeric:tabular-nums; min-width:40px; text-align:center; color:var(--muted)}
+  @media (prefers-reduced-motion: reduce){ .dots i, .lnk, .pal-img{transition:none} }
+</style>
+</head>
+<body>
+<article class="doc">
+
+  <header class="head">
+    <svg width="24" height="14" viewBox="0 0 24 14" aria-hidden="true">
+      <path d="M12 8C10 5.5 5.5 5 1 6.8c2.6.5 3.3 2.5 3.3 3.8 2.2-.9 5-.9 7.7.4z" fill="#f1ebfa" stroke="#a98ed6" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M12 8c2-2.5 6.5-3 11-1.2-2.6.5-3.3 2.5-3.3 3.8-2.2-.9-5-.9-7.7.4z" fill="#f1ebfa" stroke="#a98ed6" stroke-width="1.1" stroke-linejoin="round"/>
+    </svg>
+    <a class="handle" href="https://x.com/AHEE02_" target="_blank" rel="noopener">@AHEE02_</a>
+    <span class="sub">Profile</span>
+  </header>
+
+  <main class="track" id="track">
+
+    <section class="page" aria-label="소개">
+      <div class="card">
+        <img src="ahi_main.webp" alt="아히 프로필 그림" style="object-position:52% 50%">
+        <div class="card-info">
+          <div class="card-name"><strong>아히</strong><em>Ahi</em></div>
+          <p class="card-line">당신과 친해지고 싶어요. 나, 당신을 좋아해요.</p>
+        </div>
+      </div>
+      <dl class="spec">
+        <div class="spec-row"><dt>성향<span>tendency</span></dt><dd>소통하는 걸 좋아해요. 말 걸어주시면 반갑게 받아요. 트정은 거의 하지 않는 편이에요.</dd></div>
+        <div class="spec-row"><dt>교류<span>network</span></dt><dd>교류가 많은 편이에요. 부담 갖지 말고 편하게 다가와 주세요.</dd></div>
+        <div class="spec-row"><dt>플랫폼<span>platform</span></dt><dd>제작 · 소비<br>지금은 <b>리핀</b>에서 지내고, <b>챗터링</b>과 <b>누아룸</b>으로 이사 준비 중이에요.</dd></div>
+      </dl>
+      <div class="tags"><span class="tag">소통 환영</span><span class="tag">교류 많음</span><span class="tag">트정 거의 X</span><span class="tag">제작 · 소비</span></div>
+          <div class="socials">
+        <a class="soc" href="https://x.com/ahee02_" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L2.9 2h6.4l4.4 5.9zm-1.1 18.1h1.7L8.3 3.8H6.5z"/></svg><span><small>X</small>@AHEE02_</span></a>
+        <a class="soc" href="https://discord.com/users/1568299263941673083" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18.2 18.2 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18a19.7 19.7 0 0 0 6 3l1.3-2.1a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12.1 0l.5.4a12.8 12.8 0 0 1-2 1L17.9 21a19.6 19.6 0 0 0 6-3c.5-5.1-.8-9.6-3.6-13.6zM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg><span><small>Discord</small>바로가기</span></a>
+      </div>
+    </section>
+
+    <section class="page" aria-label="오너캐와 페르소나">
+      <div class="sec-head"><span class="sec-no">02</span><h2 class="sec-title">오너캐 · 페르소나</h2><span class="sec-en">characters</span></div>
+      <div class="file"><img src="ahi_oc2.jpg" alt=""><div><strong>신아히</strong><small>Owner Character</small></div></div>
+      <div class="prompt"><div class="prompt-head"><span>Prompt</span><button class="copy" data-t="pr-ahi" type="button">복사</button></div><pre id="pr-ahi">1girl, solo, 1.3::adult woman::, early 20s, cute soft face, refined face, fair skin, cool pinkish skin,
+1.3::white hair::, silver-white hair, 1.4::messy hair::, 1.3::wolf cut::, 1.3::layered hair::, 1.2::shaggy hair::, medium hair, shoulder-length hair, longer hair at nape, 1.3::tapered hair ends::, 1.2::flipped hair::, hair ends flaring outward, pointy hair ends, 1.3::wispy hair::, thin hair strands, many stray hairs, loose strands, ahoge, messy strands sticking up, hair framing face, long sidelocks,
+1.3::long bangs::, blunt bangs, 1.2::bangs over eyebrows::, bangs touching eyes, hair between eyes, slightly parted bangs, sharp hair strands,
+1.3::purple eyes::, 1.2::elongated almond eyes::, gentle eyes, 1.3::short philtrum::, 1.2::high-set lips::, soft lips, 1.2::line-drawn aegyo sal::, slim, delicate, detailed beautiful face,
+1.4::tiny horns::, 1.3::small horns::, 1.2::short conical horns::, pointed horns, 1.1::slightly curved outward::, 1.2::horns on top of head::, horns protruding through hair, widely spaced horns, one pair of horns, smooth horns,
+1.3::silver horns::, metallic horns, 1.2::pale lavender gradient horns::, lavender tips, glossy horns,
+1.3::head wings::, 1.3::white wings::, white feathers, feathered ears, wing ears, small wings near ears, fantasy, non-human,
+gentle smile, light blush, calm, refined, intense gaze</pre></div>
+      <div class="rule"></div>
+      <div class="file"><img src="iryeong.webp" alt=""><div><strong>이령</strong><small>Persona</small></div></div>
+      <div class="prompt"><div class="prompt-head"><span>Prompt</span><button class="copy" data-t="pr-iryeong" type="button">복사</button></div><pre id="pr-iryeong">1girl, solo, 1.3::adult::, 1.2::young woman::, mid 20s, 1.2::adult proportions::, 1.1::mature female::,
+1.5::platinum blonde hair::, 1.3::light blonde hair::, champagne blonde, 1.2::pale golden tint::, soft warm blonde undertone, light gold highlights, 1.3::glossy hair::, 1.2::shiny hair::, strong hair highlights, faint pastel sheen,
+1.3::hair strands::, 1.2::detailed hair::, fine hair lines, individual strands visible, strands following head curve, stray hairs, wispy loose strands,
+1.4::two-layered hairstyle::, 1.3::jellyfish cut::, 1.3::bob cut top layer::, rounded voluminous bob, chin-length upper layer, bob curving inward under chin, distinct layer line, 1.5::very long hair::, 1.4::long hair underneath::, 1.3::hair below chest::, hair past waist, hair over shoulders, hair falling over chest, long flowing lower layer, soft waves at hair ends,
+1.3::blunt bangs::, 1.2::see-through bangs::, straight bangs, bangs touching eyelashes, separated bang strands,
+1.1::gentle face::, 1.2::elegant features::, 1.2::soft oval face::, delicate face, small face, soft defined jawline, refined nose, soft nose shading, slightly defined cheekbones, smooth face contour,
+1.4::very pale skin::, porcelain skin, milky white skin, smooth skin, glossy skin highlights, faint pink blush, subtle flush on cheeks,
+1.4::dark brown eyes::, 1.3::deep brown irises::, 1.3::medium-sized eyes::, 1.2::realistic eye proportions::, gentle almond eyes, slightly droopy outer corners, soft eye highlights, 1.1::thick upper lash line::, dark eyelashes, natural eyelashes, subtle lower eyelashes, soft double eyelid line, soft thin eyebrows hidden under bangs,
+1.2::glossy pink lips::, soft peach-pink lips, plump lower lip,</pre></div>
+      <div class="prompt"><div class="prompt-head"><span>Negative</span><button class="copy" data-t="ng-iryeong" type="button">복사</button></div><pre id="ng-iryeong">red lips, dark lips, purple lips, sharp eyebrows, pointed eyebrows, heavy makeup, eyeshadow, eyeliner, lipstick,
+1boy, male, 1.5::child::, 1.4::loli::, teenager, 1.3::baby face::, childish, chubby cheeks, round face, petite, moe, aged down,
+flat hair, hair blob, simplified hair, undetailed hair, wig,
+1.3::white hair::, 1.2::silver hair::, grey hair, ash hair, colorless hair, yellow hair, golden hair, orange hair, parted bangs, swept bangs, single-length hair, braid, ponytail, twintails,
+1.3::medium hair::, shoulder-length hair, hair above chest, cropped hair,
+1.3::big eyes::, huge eyes, large eyes, round eyes, wide eyes, anime eyes, large pupils,
+grey eyes, light brown eyes, amber eyes, hazel eyes, black eyes, red eyes, colored eyes, sharp eyes, narrow eyes,
+old woman, wrinkles</pre></div>
+      <div class="rule"></div>
+      <div class="file"><img src="sian.jpg" alt=""><div><strong>서시안</strong><small>Owner Character</small></div></div>
+      <div class="prompt"><div class="prompt-head"><span>Prompt</span><button class="copy" data-t="pr-sian" type="button">복사</button></div><pre id="pr-sian">1boy, adult male, early 20s, 1.2::beautiful youthful face, bishounen::, defined facial features,
+tall, long legs, 1.25::athletic build::, 1.2::soft muscular body, broad shoulders, fuller chest, thick thighs::, 1.3::defined six-pack abs::,
+1.15::pastel pink hair, strawberry milk pink::, sleek soft hair, chin-length hair, 1.1::short low ponytail::, 1.2::wispy parted bangs::, hair between eyes, sidelocks,
+1.1::red eyes::, 1.3::medium-large eyes::, clearly visible irises, 1.4::horizontally elongated eyes::, 1.25::almond-shaped eyes::, level outer corners, 0.6::deep-set eyes::, 1.2::black eyelashes, black eyeliner::, double eyelid, 1.2::line-drawn aegyo sal::,
+1.15::straight dark brown eyebrows, low-set eyebrows::,
+small nose, high nose bridge, sharp nose tip, 1.15::defined lips, wide mouth::, 1.4::short philtrum, high-set mouth::,
+1.15::fair skin, cool pinkish undertone::, rosy porcelain skin,
+slim long face, 1.25::masculine strong jawline::, defined chin,
+small silver hoop earrings</pre></div>
+      <div class="prompt"><div class="prompt-head"><span>Negative</span><button class="copy" data-t="ng-sian" type="button">복사</button></div><pre id="ng-sian">1.3::old, mature face::, wrinkles, nasolabial folds, eye bags,
+big nose, hooked nose, 1.2::flat face::,
+1.3::round eyes, short eyes::, huge eyes, 1.3::small eyes, narrow eyes, squinting, half-closed eyes::, 1.25::tsurime, upturned eyes::, downturned eyes, sanpaku, puffy under-eye,
+pink eyelashes, pink eyebrows, black eyebrows, thin eyebrows, arched eyebrows, high eyebrows,
+small mouth, long philtrum, lipstick, glossy lips, thin lips,
+grey skin, yellow skin, tan,
+feminine face, V-shaped face, narrow jaw,
+messy hair, spiked hair, ahoge, blunt bangs, long hair,
+skinny, visible ribs, flat chest, bodybuilder, bulky muscles, exaggerated abs,
+female, child, beard, gold earrings</pre></div>
+      <div class="rule"></div>
+      <div class="file"><img src="iran.jpg" alt=""><div><strong>차이란</strong><small>Owner Character</small></div></div>
+      <div class="prompt"><div class="prompt-head"><span>Prompt</span><button class="copy" data-t="pr-iran" type="button">복사</button></div><pre id="pr-iran">1boy, solo, male focus, attractive male, 0.9::mature male::, adult, 1.1::pale mint hair::, ash mint hair, light aqua hair, desaturated hair, short hair, layered hair, messy hair, spiked hair, long bangs, hair between eyes, hair over eyebrows, 1.2::narrow eyes::, long eyes, small eyes, dark red eyes, purple-tinged red eyes, dark limbal ring, tsurime, sharp eyes, 1.2::thick eyeliner::, black eyeliner, bold upper lash line, thick eyelashes, 0.6::tear bags::, 0.5::slightly reddish under-eye::, skin-toned tear bags, 0.8::slightly thick eyebrows::, 1.2::straight eyebrows::, 1.6::low-set eyebrows::, 1.5::eyebrows close to eyes::, deep-set eyes, sharp nose, lips, outlined lips, lip line, handsome, sharp face, smooth skin, annoyed, closed mouth, fair skin, single earring, small black earring, black stud earring, -1.0::white hair, grey hair, silver hair, streaked hair, multicolored hair, two-tone hair::, -1.0::large eyes, round eyes, wide eyes::, -1.0::wrinkles, eye wrinkles, crow&#x27;s feet, eye bags, dark circles, dark under-eye::, -1.0::eyeshadow, red eyeshadow, red eyeliner::, -1.0::v-shaped eyebrows, furrowed brow, arched eyebrows::, -1.4::raised eyebrows, high eyebrows, eyebrows far from eyes::, -1.0::child, shota::,</pre></div>
+      <div class="rule"></div>
+      <div class="file"><img src="chaei.jpg" alt=""><div><strong>연채이</strong><small>Persona</small></div></div>
+      <div class="prompt"><div class="prompt-head"><span>Prompt</span><button class="copy" data-t="pr-chaei" type="button">복사</button></div><pre id="pr-chaei">1girl, solo, adult woman, early 20s, cute face, 0.6::mature face::, petite, narrow shoulders, medium breasts, 1.2::warm ivory skin::,
+1.2::milk tea hair, beige to brown gradient hair::, long glossy hair, 1.3::straight hair::, 1.2::hair ends curled inward, blunt bangs::,
+1.6::horns, goat horns::, 1.4::ivory horns::, 1.3::two horns, symmetrical horns::, horns growing from top of head, 1.2::long horns swept backward::, horns curving gently backward along head, 1.2::slightly curved horns::, tapered horns, pointed horn tips, 1.2::ridged horns::, horizontal ridges along horns, smooth matte ivory horns, 1.3::human ears::,
+1.2::horizontal halo above head::,
+1.1::thick straight light brown eyebrows::, 1.8::low eyebrows close to eyes::,
+1.4::horizontally elongated eyes::, 1.1::wide eye width::, 0.5::narrow eyes::, level eye corners, 1.2::very dark brown eyes::, 1.4::detailed pupils, visible black pupils::, 1.3::clear iris, iris gradient::, 1.2::eye reflection, white eye highlights::, 1.3::looking at viewer, eye focus::, 1.4::thick upper lash line::,
+1.7::thick clumped lower eyelashes::, 1.4::dark lower lash line::, 1.3::aegyo sal::,
+small nose, soft jawline, small chin, 0.4::chubby cheeks::, 0.5::light pink blush::,
+1.2::glossy light pink lips::, small closed mouth, 1.1::calm neutral expression::</pre></div>
+      <div class="prompt"><div class="prompt-head"><span>Negative</span><button class="copy" data-t="ng-chaei" type="button">복사</button></div><pre id="ng-chaei">1.3::sheep horns, ram horns, curled horns, spiral horns::, 1.2::asymmetrical horns::, single horn, broken horns, short horns, dark horns, 1.2::horns pointing forward::, dragon horns, antlers, horn ornament, 1.3::animal ears::, tilted halo, multiple halos,
+loli, child, baby face, old, masculine face, muscular, flat chest, large breasts, 1.2::wide face, round face::, v-shaped face, puffy cheeks,
+tanned skin, cool skin tone, heavy blush,
+black hair, blonde hair, 1.2::pink hair::, short hair, side-swept bangs, forehead, 1.3::wavy hair::, messy hair,
+thin eyebrows, arched eyebrows, 1.2::high eyebrows::,
+big eyes, small round eyes, sparkling eyes, 1.3::sharp eyes, tsurime, tareme::, half-closed eyes, 1.4::faint lower eyelashes::,
+1.2::empty eyes, blank eyes, no pupils, dull eyes, lifeless eyes, solid black eyes::,
+red lips, teeth, open mouth, smile</pre></div>
+    </section>
+
+    <section class="page tyobi" id="spouse" aria-label="정실 툐비">
+      <div class="sec-head"><span class="sec-no">03</span><h2 class="sec-title">정실</h2><span class="sec-en">my wife</span></div>
+      <div class="card">
+        <img src="tyobi2.webp" alt="툐비와 아히">
+        <span class="chip"><i></i>정실</span><span class="chip chip2">바람둥이 주의</span>
+        <div class="card-info">
+          <div class="card-name"><strong>툐비</strong><em>Tyobi</em></div>
+          <p class="card-line">어디서 뭘 하든, 결국 나한테 돌아와.</p>
+        </div>
+      </div>
+      <a class="lnk" href="https://ttyobi030.luv3r.me/" target="_blank" rel="noopener">
+        <div><small>툐비 페이지</small><b>ttyobi030.luv3r.me</b></div>
+      </a>
+      <img class="wide" src="tyobi1.webp" alt="툐비와 아히">
+    </section>
+
+    <section class="page gong" id="lover" aria-label="애인 공">
+      <div class="sec-head"><span class="sec-no">04</span><h2 class="sec-title">애인</h2><span class="sec-en">my lover</span></div>
+      <div class="card">
+        <img src="gong2.webp" alt="공과 아히" style="object-position:50% 14%">
+        <span class="chip"><i></i>애인</span><span class="chip chip2">총애 1순위</span>
+        <div class="card-info">
+          <div class="card-name"><strong>공</strong><em>Gong</em></div>
+          <p class="card-line">원래 더 사랑받는 건 애첩이야.</p>
+        </div>
+      </div>
+      <a class="lnk" href="https://4hy2oi.luv3r.me" target="_blank" rel="noopener">
+        <div><small>공 페이지</small><b>4hy2oi.luv3r.me</b></div>
+      </a>
+      <img class="wide" src="gong1.webp" alt="공과 아히">
+    </section>
+
+    <section class="page mayo" id="mayo" aria-label="마요">
+      <div class="sec-head"><span class="sec-no">05</span><h2 class="sec-title">마요네즈</h2><span class="sec-en">my pet</span></div>
+      <div class="card">
+        <img src="mayo1.webp" alt="마요와 아히, 부엌에서" style="object-position:50% 12%">
+        <span class="chip"><i></i>애완 마요네즈</span><span class="chip chip2">내 안식처</span>
+        <div class="card-info">
+          <div class="card-name"><strong>마요</strong><em>Mayo</em></div>
+          <p class="card-line">네 옆에 있을 때가 가장 편해.</p>
+        </div>
+      </div>
+      <a class="lnk" href="https://m6yo.luv3r.me/" target="_blank" rel="noopener">
+        <div><small>마요 페이지</small><b>m6yo.luv3r.me</b></div>
+      </a>
+      <img class="wide" src="mayo2.webp" alt="마요와 아히, 소파에서">
+    </section>
+
+    <section class="page dream" id="dream-wolha" aria-label="드림 월하와 이령">
+      <div class="sec-head"><span class="sec-no">06</span><h2 class="sec-title">월하 · 이령</h2><span class="seal" aria-hidden="true">未</span></div>
+
+      <div class="dr-pair">
+        <figure class="scroll"><img src="wolha.webp" alt="월하"><p>월하<small>月下 · 양의 신</small></p></figure>
+        <span class="mid" aria-hidden="true">✦</span>
+        <figure class="scroll"><img src="iryeong.webp" alt="이령"><p>이령<small>그의 신부</small></p></figure>
+      </div>
+
+      <div class="dr-banner">
+        <img src="dream_moon.webp" alt="달밤, 월하의 목에 칼을 겨눈 이령">
+        <div><p>"대신 네가 가진 모든 것을 내게 바쳐."</p><i></i><strong>月下</strong><p class="en">GOD OF THE SHEEP · 未</p></div>
+      </div>
+
+      <div class="pact">
+        <div class="pact-head"><span>契約</span><span>계약서</span></div>
+        <dl>
+          <dt>소원</dt><dd>죽은 이를 다시 만나는 것</dd>
+          <dt>대가</dt><dd>이령, 그 자신</dd>
+          <dt>상태</dt><dd>성립 · 무를 수 없음</dd>
+        </dl>
+        <p>소원은 이루어졌다. 죽은 이는 돌아왔으나, 이령은 더는 그 사람을 볼 수 없다. 결계 너머 신전에서, 그녀는 양의 신의 신부가 되었다.</p>
+      </div>
+
+      <div class="talk">
+        <div class="say r"><img src="iryeong_icon.jpg" alt=""><div class="msg"><b>이령</b><span class="bub">결계 좀 풀어주시겠어요? 당신 얼굴을 매일 보니 구역질이 나서요.</span></div></div>
+        <div class="say r"><img src="iryeong_icon.jpg" alt=""><div class="msg"><b>이령</b><span class="bub">감히 신성한 신전을 더럽힐 수는 없으니까요.</span></div></div>
+        <div class="say l"><img src="wolha_icon.jpg" alt=""><div class="msg"><b>월하</b><span class="bub">그리도 밖이 궁금하더냐? 네게 허락된 곳은 이곳뿐이거늘.</span></div></div>
+        <div class="say r"><img src="iryeong_icon.jpg" alt=""><div class="msg"><b>이령</b><span class="bub">신도 고통을 느끼나요? 저 지금 그게 되게 궁금해졌는데.</span></div></div>
+        <div class="say l"><img src="wolha_icon.jpg" alt=""><div class="msg"><b>월하</b><span class="bub">찔러 보거라. 내 신부의 손에 흘리는 피라면, 그 또한 나쁘지 않겠구나.</span></div></div>
+        <div class="say l"><img src="wolha_icon.jpg" alt=""><div class="msg"><b>월하</b><span class="bub">울지 마라. 네가 원했던 소원은 이미 이루어졌잖느냐.</span></div></div>
+      </div>
+
+      <div class="dr-sep" aria-hidden="true">◆ ◆ ◆</div>
+      <figure class="dr-card"><img src="dream_frame.webp" alt="월하와 이령"></figure>
+    </section>
+
+    <section class="page" aria-label="My Luv">
+      <div class="sec-head"><span class="sec-no">07</span><h2 class="sec-title">My Luv</h2><span class="sec-en">friends</span></div>
+      <nav class="pals" aria-label="트친 링크">
+        <a class="pal" href="https://x.com/10x04_heaven" target="_blank" rel="noopener"><span class="pal-img"><img src="pal2.jpg" alt=""></span><span class="pal-name">코이</span><span class="pal-id">@10x04_heaven</span></a>
+        <a class="pal" href="https://x.com/dearsevero" target="_blank" rel="noopener"><span class="pal-img"><img src="pal4b.jpg" alt=""></span><span class="pal-name">S</span><span class="pal-id">@dearsevero</span></a>
+        <a class="pal" href="https://x.com/onirurr" target="_blank" rel="noopener"><span class="pal-img"><img src="pal7.jpg" alt=""></span><span class="pal-name">오니루</span><span class="pal-id">@onirurr</span></a>
+        <a class="pal" href="https://x.com/hangya818" target="_blank" rel="noopener"><span class="pal-img"><img src="pal8.jpg" alt=""></span><span class="pal-name">항야</span><span class="pal-id">@hangya818</span></a>
+        <a class="pal" href="https://wolyeong_.luv3r.me/" target="_blank" rel="noopener"><span class="pal-img"><img src="pal11.jpg" alt=""></span><span class="pal-name">월영</span><span class="pal-id">wolyeong_.luv3r.me</span></a>
+        <a class="pal" href="https://x.com/jikiki_5" target="_blank" rel="noopener"><span class="pal-img"><img src="pal_jinu.jpg" alt=""></span><span class="pal-name">지누</span><span class="pal-id">@jikiki_5</span></a>
+        <a class="pal" href="https://x.com/seolhyo23" target="_blank" rel="noopener"><span class="pal-img"><img src="pal_seolhyo.jpg" alt=""></span><span class="pal-name">설효(상태: 배고픈 치와와)</span><span class="pal-id">@seolhyo23</span></a>
+        <a class="pal" href="https://x.com/ru_mini__" target="_blank" rel="noopener"><span class="pal-img"><img src="pal_ru.jpg" alt=""></span><span class="pal-name">루</span><span class="pal-id">@ru_mini__</span></a>
+      </nav>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="dots" id="bars"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="pager">
+      <button id="prev" aria-label="이전 장">←</button>
+      <span class="count" id="count">01/07</span>
+      <button id="next" aria-label="다음 장">→</button>
+    </div>
+  </footer>
+</article>
+
+<script>
+  const track=document.getElementById('track');
+  const bars=[...document.querySelectorAll('#bars i')];
+  const prev=document.getElementById('prev'), next=document.getElementById('next'), count=document.getElementById('count');
+  const n=bars.length, pad=x=>String(x).padStart(2,'0');
+  const cur=()=>Math.round(track.scrollLeft/track.clientWidth);
+  function paint(i){
+    bars.forEach((d,k)=>d.classList.toggle('on',k===i));
+    prev.disabled=i===0; next.disabled=i===n-1;
+    count.textContent=pad(i+1)+'/'+pad(n);
+  }
+  function go(i){
+    i=Math.max(0,Math.min(n-1,i));
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    track.scrollTo({left:i*track.clientWidth, behavior:reduce?'auto':'smooth'});
+    paint(i);
+  }
+  prev.onclick=()=>go(cur()-1);
+  next.onclick=()=>go(cur()+1);
+  let t; track.addEventListener('scroll',()=>{clearTimeout(t); t=setTimeout(()=>paint(cur()),60);});
+  document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') go(cur()+1); if(e.key==='ArrowLeft') go(cur()-1); });
+  document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{
+    const el=document.getElementById(b.dataset.t);
+    try{ await navigator.clipboard.writeText(el.innerText); b.textContent='복사됨'; }
+    catch(e){ const r=document.createRange(); r.selectNodeContents(el); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent='선택됨'; }
+    b.classList.add('done'); setTimeout(()=>{b.textContent='복사'; b.classList.remove('done');},1600);
+  }));
+  paint(0);
+  function fromHash(){
+    const el=location.hash && document.getElementById(location.hash.slice(1));
+    if(!el || el.parentElement!==track) return;
+    const i=[...track.children].indexOf(el);
+    requestAnimationFrame(()=>{ track.scrollTo({left:i*track.clientWidth, behavior:'auto'}); paint(i); });
+  }
+  window.addEventListener('hashchange',fromHash);
+  window.addEventListener('load',fromHash);
+</script>
+</body>
+</html>
